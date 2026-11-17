@@ -19,18 +19,24 @@ and publish meetings that notify the whole club.
 | Meeting scheduler, editor, cancellation, calendar | Complete |
 | Web Push + in-app notification centre | Complete; needs VAPID keys to deliver |
 | Meeting reminders | Complete; needs an external scheduler to call the endpoint |
-| **Live Supabase project** | **Not provisioned — see Setup** |
+| **Live Supabase project** | **Provisioned and seeded** — schema `clubsync` in the `ConnectEd` project |
 
-Nothing in the application uses mock data. Every page reads through Supabase,
-so the interface stays empty until the database below is connected.
+Nothing in the application uses mock data. Every page reads through Supabase.
+
+One step is still manual: `clubsync` has to be listed under **Project Settings
+→ API → Exposed schemas**, or PostgREST will not serve it. See *Schema layout*.
 
 ---
 
 ## Setup
 
-### 1. Create a Supabase project
+### 1. Supabase project
 
-<https://supabase.com/dashboard> → New project. Keep the database password.
+Already done. ClubSync lives in the `clubsync` schema of the **ConnectEd**
+project (`vjebirpryinnuzxnjjws`), which was empty. All four migrations are
+applied and demo data is seeded.
+
+Starting from scratch instead? Create a project, then follow step 3.
 
 ### 2. Configure the environment
 
@@ -137,6 +143,35 @@ covering member isolation, leader blindness, aggregate correctness, notification
 fan-out, club joining, the anonymous role, and every schema constraint.
 
 ---
+
+## Schema layout
+
+ClubSync's eleven tables live in a Postgres schema called `clubsync`, not in
+`public`. That keeps it from colliding with another app in the same project
+(ConnectEd already has its own `notifications` table) and means dropping one
+schema removes ClubSync entirely.
+
+Two consequences worth knowing:
+
+1. **The schema must be exposed to the API.** PostgREST serves only the schemas
+   it is told about. Add `clubsync` under **Project Settings → API → Exposed
+   schemas**. It can also be set from SQL, which is what is currently in place:
+
+   ```sql
+   alter role authenticator set pgrst.db_schemas = 'public, graphql_public, clubsync';
+   notify pgrst, 'reload config';
+   ```
+
+   The dashboard setting is the durable one; set it there too.
+
+2. **Grants never touch `public`.** Every `grant` and `revoke` in migration 0004
+   is scoped to the `clubsync` schema, so the host project's own tables are left
+   exactly as they were.
+
+A caveat to be aware of while ClubSync shares a project: the
+`SUPABASE_SERVICE_ROLE_KEY` bypasses RLS for the **whole project**, not just the
+`clubsync` schema. That is harmless today because ConnectEd's tables are empty.
+If ConnectEd ever holds real data, move ClubSync to its own project.
 
 ## Privacy model
 

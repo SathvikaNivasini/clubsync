@@ -13,6 +13,12 @@
 -- Day-of-week convention used everywhere: 0 = Monday ... 6 = Sunday.
 -- ============================================================================
 
+-- ClubSync lives in its own schema so it can share a Supabase project
+-- without colliding with, or being reachable from, another app's tables.
+-- Dropping this one schema removes ClubSync completely.
+create schema if not exists clubsync;
+set search_path = clubsync, public, pg_temp;
+
 create extension if not exists pgcrypto;
 
 -- ---------------------------------------------------------------------------

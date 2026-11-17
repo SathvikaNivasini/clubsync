@@ -1,6 +1,8 @@
 -- ============================================================================
 -- ClubSync — Row Level Security
 -- ============================================================================
+
+set search_path = clubsync, public, pg_temp;
 -- The privacy guarantee in one table:
 --
 --   table                  member (own rows)   club leader
@@ -175,9 +177,9 @@ create policy push_rw_self on push_subscriptions
 -- Grants. RLS does the authorisation; these grants just open the door.
 -- `anon` gets nothing: every ClubSync read requires a signed-in session.
 -- ============================================================================
-grant usage on schema public to anon, authenticated, service_role;
+grant usage on schema clubsync to anon, authenticated, service_role;
 
-revoke all on all tables in schema public from anon;
+revoke all on all tables in schema clubsync from anon;
 
 grant select on availability_periods to authenticated;
 grant select, update on clubs to authenticated;
@@ -191,7 +193,7 @@ grant select, insert, update, delete on meetings to authenticated;
 grant select, update, delete on notifications to authenticated;
 grant select, insert, update, delete on push_subscriptions to authenticated;
 
-grant all on all tables in schema public to service_role;
+grant all on all tables in schema clubsync to service_role;
 
 -- Function execution
 revoke all on function lookup_club_by_code(text) from public;

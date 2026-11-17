@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { requirePublicEnv } from "./env";
+import { DB_SCHEMA, requirePublicEnv } from "./env";
 
 /**
  * Server-side Supabase client bound to the request's cookies, so every query
@@ -11,6 +11,7 @@ export async function supabaseServer() {
   const { url, anonKey } = requirePublicEnv();
 
   return createServerClient(url, anonKey, {
+    db: { schema: DB_SCHEMA },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -28,3 +29,10 @@ export async function supabaseServer() {
     },
   });
 }
+
+/**
+ * The concrete client type, inferred rather than written out. ClubSync targets
+ * a non-`public` schema, so the hand-written `SupabaseClient` default (which
+ * pins the schema to "public") does not describe this client.
+ */
+export type AppSupabaseClient = Awaited<ReturnType<typeof supabaseServer>>;

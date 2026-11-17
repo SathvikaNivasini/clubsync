@@ -1,6 +1,8 @@
 import "server-only";
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+
+import { DB_SCHEMA } from "./env";
 
 /**
  * Service-role client. SERVER ONLY.
@@ -12,7 +14,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  *   2. resetting a password from a recovery phrase,
  *   3. reading push subscriptions in order to fan a notification out.
  */
-export function supabaseAdmin(): SupabaseClient {
+export function supabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -25,6 +27,7 @@ export function supabaseAdmin(): SupabaseClient {
   }
 
   return createClient(url, serviceKey, {
+    db: { schema: DB_SCHEMA },
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
-import { requirePublicEnv } from "./env";
+import { DB_SCHEMA, requirePublicEnv } from "./env";
 
 let cached: ReturnType<typeof createBrowserClient> | null = null;
 
@@ -9,7 +9,7 @@ let cached: ReturnType<typeof createBrowserClient> | null = null;
 export function supabaseBrowser() {
   if (!cached) {
     const { url, anonKey } = requirePublicEnv();
-    cached = createBrowserClient(url, anonKey);
+    cached = createBrowserClient(url, anonKey, { db: { schema: DB_SCHEMA } });
   }
   return cached;
 }

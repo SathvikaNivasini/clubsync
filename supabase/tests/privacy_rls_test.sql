@@ -6,6 +6,7 @@
 -- Prints a PASS/FAIL table and raises at the end if anything failed.
 -- ============================================================================
 set client_min_messages = warning;
+set search_path = clubsync, public, pg_temp;
 
 drop table if exists t_results;
 create table t_results (id serial primary key, label text, passed boolean, detail text);
@@ -472,7 +473,7 @@ end $$;
 
 select t_ok('members table has no column that could hold PII',
   (select count(*) from information_schema.columns
-    where table_schema = 'public' and table_name = 'members'
+    where table_schema = 'clubsync' and table_name = 'members'
       and column_name ~* '(email|phone|first_name|last_name|full_name|real_name|student_id)') = 0);
 
 -- ===========================================================================

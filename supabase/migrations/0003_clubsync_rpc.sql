@@ -1,6 +1,8 @@
 -- ============================================================================
 -- ClubSync — RPCs
 -- ============================================================================
+
+set search_path = clubsync, public, pg_temp;
 -- Member-facing RPCs run as the caller (SECURITY INVOKER) wherever RLS already
 -- expresses the rule. Only two things need SECURITY DEFINER:
 --   1. club lookup / join by code — the member cannot read `clubs` until they
@@ -27,7 +29,7 @@ returns table (
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_code text := upper(btrim(coalesce(p_code, '')));
@@ -57,7 +59,7 @@ returns table (club_id uuid, club_name text, member_number integer, was_new bool
 language plpgsql
 volatile
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_code   text := upper(btrim(coalesce(p_code, '')));
@@ -104,7 +106,7 @@ returns void
 language plpgsql
 volatile
 security invoker
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 begin
   delete from club_memberships cm
@@ -126,7 +128,7 @@ returns timestamptz
 language plpgsql
 volatile
 security invoker
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_uid uuid := auth.uid();
@@ -185,7 +187,7 @@ returns table (
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -225,7 +227,7 @@ returns table (
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -259,7 +261,7 @@ returns table (day_of_week smallint, member_count integer, pct numeric)
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -287,7 +289,7 @@ returns table (period text, period_label text, member_count integer, pct numeric
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -325,7 +327,7 @@ returns table (
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -377,7 +379,7 @@ returns table (
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_total integer;
@@ -428,7 +430,7 @@ returns table (day_of_week smallint, hour_slot smallint, member_count integer)
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 begin
   perform app_require_club_admin(p_club);

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { AppSupabaseClient } from "./supabase/server";
 
 import type { MeetingWithClub } from "@/components/calendar/meeting-card";
 import { clubColorForIndex } from "./viz";
@@ -14,7 +14,7 @@ interface MeetingRow extends Meeting {
  * but `clubIds` narrows it when a page only wants one club.
  */
 export async function fetchMeetings(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   options: {
     from?: string;
     to?: string;

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { AppSupabaseClient } from "./supabase/server";
 
 import type {
   BestTime,
@@ -29,7 +29,7 @@ function firstRow<T>(data: unknown): T | null {
 }
 
 export async function getClubOverview(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
 ): Promise<ClubOverview> {
   const { data, error } = await supabase.rpc("club_overview", { p_club: clubId });
@@ -38,7 +38,7 @@ export async function getClubOverview(
 }
 
 export async function getAvailabilityMatrix(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
 ): Promise<MatrixCell[]> {
   const { data, error } = await supabase.rpc("club_availability_matrix", { p_club: clubId });
@@ -47,7 +47,7 @@ export async function getAvailabilityMatrix(
 }
 
 export async function getDayTotals(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
 ): Promise<DayTotal[]> {
   const { data, error } = await supabase.rpc("club_day_totals", { p_club: clubId });
@@ -56,7 +56,7 @@ export async function getDayTotals(
 }
 
 export async function getPeriodTotals(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
 ): Promise<PeriodTotal[]> {
   const { data, error } = await supabase.rpc("club_period_totals", { p_club: clubId });
@@ -65,7 +65,7 @@ export async function getPeriodTotals(
 }
 
 export async function getBestTimes(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
   limit = 5,
 ): Promise<BestTime[]> {
@@ -84,7 +84,7 @@ export interface WindowHistogramCell {
 }
 
 export async function getWindowHistogram(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   clubId: string,
 ): Promise<WindowHistogramCell[]> {
   const { data, error } = await supabase.rpc("club_window_histogram", { p_club: clubId });

@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
-import type { SupabaseClient } from "@supabase/supabase-js";
-
-import { supabaseServer } from "./supabase/server";
+import { supabaseServer, type AppSupabaseClient } from "./supabase/server";
 import type { Club, ClubAdmin, Member, MemberClubView } from "./types";
 import type { AppRole } from "./constants";
 
@@ -9,7 +7,7 @@ export interface MemberViewer {
   role: "member";
   userId: string;
   member: Member;
-  supabase: SupabaseClient;
+  supabase: AppSupabaseClient;
 }
 
 export interface LeaderViewer {
@@ -17,7 +15,7 @@ export interface LeaderViewer {
   userId: string;
   admin: ClubAdmin;
   club: Club;
-  supabase: SupabaseClient;
+  supabase: AppSupabaseClient;
 }
 
 export type Viewer = MemberViewer | LeaderViewer;
@@ -87,7 +85,7 @@ export async function requireLeader(): Promise<LeaderViewer> {
  * RLS restricts all three reads to the caller's own rows.
  */
 export async function getMemberClubs(
-  supabase: SupabaseClient,
+  supabase: AppSupabaseClient,
   memberId: string,
 ): Promise<MemberClubView[]> {
   const { data: memberships, error } = await supabase

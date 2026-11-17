@@ -2,6 +2,8 @@
 -- ClubSync — helper functions, triggers, RPCs and Row Level Security
 -- ============================================================================
 
+set search_path = clubsync, public, pg_temp;
+
 -- ---------------------------------------------------------------------------
 -- Authorisation helpers.
 -- SECURITY DEFINER so that policies can call them without recursing into the
@@ -12,7 +14,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
   select exists (
     select 1 from club_admins ca
@@ -25,7 +27,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
   select exists (
     select 1 from club_memberships cm
@@ -38,7 +40,7 @@ returns void
 language plpgsql
 stable
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 begin
   if auth.uid() is null then
@@ -83,7 +85,7 @@ create or replace function app_assign_member_number()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 begin
   if new.member_number is null or new.member_number = 0 then
@@ -107,7 +109,7 @@ create or replace function app_refresh_availability_status()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_club   uuid := coalesce(new.club_id, old.club_id);
@@ -153,7 +155,7 @@ create or replace function app_fanout_meeting_notification()
 returns trigger
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = clubsync, public, pg_temp
 as $$
 declare
   v_kind      text;
