@@ -1,13 +1,11 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
+import { LoginForm } from "@/components/login-form";
 
-import { LoginForm } from "@/components/auth/login-form";
-
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata = { title: "Sign in" };
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+    <Suspense fallback={null}>
       <LoginForm />
     </Suspense>
   );

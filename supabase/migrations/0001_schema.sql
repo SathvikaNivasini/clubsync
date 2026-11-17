@@ -1,0 +1,146 @@
+-- ============================================================================
+-- ClubSync v2 — sponsor → officer → student scheduling chain
+-- ============================================================================
+-- The whole product is one constraint chain:
+--   1. a SPONSOR marks the dates they are free (before or after school only)
+--   2. an OFFICER may only open slots the sponsor actually offered
+--   3. STUDENTS vote on those slots before a deadline
+--   4. the officer picks one; claiming it takes it away from every other club
+--      that shares the sponsor — first club to finalise wins.
+--
+-- Only two slots exist, ever: before_school and after_school.
+-- ============================================================================
+
+create schema if not exists clubsync;
+set search_path = clubsync, public, pg_temp;
+
+create extension if not exists pgcrypto;
+
+-- ---------------------------------------------------------------------------
+-- clubs
+-- ---------------------------------------------------------------------------
+create table clubs (
+  id         uuid primary key default gen_random_uuid(),
+  code       text not null unique,
+  name       text not null,
+  created_at timestamptz not null default now(),
+  constraint clubs_code_format check (code = upper(code) and code ~ '^[A-Z0-9][A-Z0-9-]{1,15}$'),
+  constraint clubs_name_length check (char_length(name) between 2 and 60)
+);
+
+-- ---------------------------------------------------------------------------
+-- people — three roles, three tables, each keyed to an auth user
+-- ---------------------------------------------------------------------------
+create table sponsors (
+  id           uuid primary key references auth.users (id) on delete cascade,
+  handle       text not null unique,
+  display_name text,
+  created_at   timestamptz not null default now(),
+  constraint sponsors_handle_format check (handle = lower(handle) and handle ~ '^[a-z0-9_.]{3,30}$')
+);
+
+-- a sponsor can run several clubs; their availability is shared across all of them
+create table club_sponsors (
+  club_id    uuid not null references clubs (id) on delete cascade,
+  sponsor_id uuid not null references sponsors (id) on delete cascade,
+  primary key (club_id, sponsor_id)
+);
+create index club_sponsors_sponsor_idx on club_sponsors (sponsor_id);
+
+create table officers (
+  id                   uuid primary key references auth.users (id) on delete cascade,
+  club_id              uuid not null references clubs (id) on delete cascade,
+  handle               text not null unique,
+  display_name         text,
+  must_change_password boolean not null default true,
+  created_at           timestamptz not null default now(),
+  constraint officers_handle_format check (handle = upper(handle) and handle ~ '^[A-Z0-9][A-Z0-9-]{1,20}$')
+);
+create index officers_club_idx on officers (club_id);
+
+create table members (
+  id         uuid primary key references auth.users (id) on delete cascade,
+  username   text not null unique,
+  created_at timestamptz not null default now(),
+  constraint members_username_format check (username = lower(username) and username ~ '^[a-z0-9_]{3,20}$')
+);
+
+create table club_memberships (
+  club_id   uuid not null references clubs (id) on delete cascade,
+  member_id uuid not null references members (id) on delete cascade,
+  joined_at timestamptz not null default now(),
+  primary key (club_id, member_id)
+);
+create index club_memberships_member_idx on club_memberships (member_id);
+
+-- ---------------------------------------------------------------------------
+-- sponsor_slots — "I am free before school on the 24th"
+-- ---------------------------------------------------------------------------
+create table sponsor_slots (
+  id         uuid primary key default gen_random_uuid(),
+  sponsor_id uuid not null references sponsors (id) on delete cascade,
+  slot_date  date not null,
+  slot       text not null,
+  created_at timestamptz not null default now(),
+  constraint sponsor_slots_slot_valid check (slot in ('before_school', 'after_school')),
+  constraint sponsor_slots_unique unique (sponsor_id, slot_date, slot)
+);
+create index sponsor_slots_sponsor_date_idx on sponsor_slots (sponsor_id, slot_date);
+
+-- ---------------------------------------------------------------------------
+-- rounds — an officer opens a vote on some of the sponsor's slots
+-- ---------------------------------------------------------------------------
+create table rounds (
+  id         uuid primary key default gen_random_uuid(),
+  club_id    uuid not null references clubs (id) on delete cascade,
+  created_by uuid references officers (id) on delete set null,
+  deadline   timestamptz not null,
+  status     text not null default 'open',
+  created_at timestamptz not null default now(),
+  constraint rounds_status_valid check (status in ('open', 'closed'))
+);
+create index rounds_club_idx on rounds (club_id, created_at desc);
+
+create table round_options (
+  id              uuid primary key default gen_random_uuid(),
+  round_id        uuid not null references rounds (id) on delete cascade,
+  sponsor_slot_id uuid not null references sponsor_slots (id) on delete cascade,
+  slot_date       date not null,
+  slot            text not null,
+  constraint round_options_slot_valid check (slot in ('before_school', 'after_school')),
+  constraint round_options_unique unique (round_id, sponsor_slot_id)
+);
+create index round_options_round_idx on round_options (round_id);
+
+-- ---------------------------------------------------------------------------
+-- votes — one row per student per option. Officers only ever see counts.
+-- ---------------------------------------------------------------------------
+create table votes (
+  id         uuid primary key default gen_random_uuid(),
+  option_id  uuid not null references round_options (id) on delete cascade,
+  member_id  uuid not null references members (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  constraint votes_unique unique (option_id, member_id)
+);
+create index votes_option_idx on votes (option_id);
+create index votes_member_idx on votes (member_id);
+
+-- ---------------------------------------------------------------------------
+-- meetings — the finalised meeting.
+-- `sponsor_slot_id` is UNIQUE: that single constraint is what makes slot
+-- claiming first-come-first-served across every club sharing a sponsor.
+-- ---------------------------------------------------------------------------
+create table meetings (
+  id              uuid primary key default gen_random_uuid(),
+  club_id         uuid not null references clubs (id) on delete cascade,
+  sponsor_slot_id uuid not null unique references sponsor_slots (id) on delete cascade,
+  round_id        uuid references rounds (id) on delete set null,
+  slot_date       date not null,
+  slot            text not null,
+  location        text,
+  created_at      timestamptz not null default now(),
+  constraint meetings_slot_valid check (slot in ('before_school', 'after_school')),
+  constraint meetings_location_length check (location is null or char_length(location) <= 80)
+);
+create index meetings_club_idx on meetings (club_id, slot_date);
+create index meetings_date_idx on meetings (slot_date);

@@ -1,339 +1,140 @@
 @import "tailwindcss";
 
 /* ===========================================================================
-   ClubSync design tokens
-   Dark navy foundation, teal primary, warm amber accent.
+   ClubSync — light, soft, a little bit 3D
    =========================================================================== */
 @theme {
-  --color-canvas: #101319;
-  --color-canvas-deep: #0b0e13;
-  --color-surface: #191f29;
-  --color-surface-raised: #212a38;
-  --color-surface-hover: #273242;
-  --color-line: #2a3442;
-  --color-line-strong: #3a4657;
+  --color-canvas: #f6f7fa;
+  --color-surface: #ffffff;
+  --color-sunken: #eef1f6;
+  --color-line: #e3e8ef;
+  --color-line-strong: #cdd5e0;
 
-  --color-primary: #35c6b1;
-  --color-primary-dim: #2aa294;
-  --color-primary-soft: #35c6b11a;
-  --color-accent: #f2ae52;
-  --color-accent-soft: #f2ae521a;
+  --color-ink: #10151f;
+  --color-muted: #5f6b7a;
+  --color-faint: #93a0b0;
 
-  --color-ink: #f5f6f8;
-  --color-muted: #929baa;
-  --color-muted-dim: #6b7585;
+  --color-primary: #0e9f8a;
+  --color-primary-dark: #0b8273;
+  --color-primary-soft: #e6f7f4;
+  --color-accent: #e08b18;
+  --color-accent-soft: #fdf2e0;
+  --color-danger: #d2453c;
+  --color-danger-soft: #fdecea;
 
-  --color-danger: #f2635c;
-  --color-danger-soft: #f2635c1a;
-  --color-success: #4ed2a6;
-  --color-info: #6aa8f2;
+  --color-before: #f0a63d;
+  --color-before-soft: #fff4e4;
+  --color-after: #4f8ef7;
+  --color-after-soft: #eaf1fe;
 
-  /* Availability heatmap ramp — single hue (OKLCH h=181), monotone lightness.
-     Validated against surface #191F29: monotone PASS, adjacent dL >= 0.06 PASS,
-     light-end contrast 2.44:1 PASS, single-hue spread 1 degree PASS.
-     See lib/viz.ts for the full report. */
-  --color-heat-zero: #1b222d;
-  --color-heat-1: #00675b;
-  --color-heat-2: #008676;
-  --color-heat-3: #00a693;
-  --color-heat-4: #1dc7b1;
-  --color-heat-5: #50e6cf;
-
-  /* Club identity colours — categorical, fixed order, all-pairs CVD validated. */
-  --color-club-1: #00ad98;
-  --color-club-2: #c68627;
-  --color-club-3: #1380f7;
-  --color-club-4: #a63fbf;
-  --color-club-5: #ae2540;
-
-  --radius-card: 1rem;
-  --radius-tile: 0.75rem;
+  --radius-xl: 1.25rem;
+  --radius-lg: 0.875rem;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Segoe UI", Roboto, sans-serif;
 
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
-  --shadow-lifted: 0 2px 4px rgb(0 0 0 / 0.3), 0 20px 48px -16px rgb(0 0 0 / 0.6);
-  --shadow-glow: 0 0 0 1px #35c6b133, 0 12px 32px -12px #35c6b140;
+  /* layered shadows: what makes the flat cards read as extruded */
+  --shadow-soft: 0 1px 2px rgb(16 21 31 / 0.04), 0 4px 10px -4px rgb(16 21 31 / 0.08);
+  --shadow-pop: 0 2px 4px rgb(16 21 31 / 0.05), 0 12px 28px -10px rgb(16 21 31 / 0.16);
+  --shadow-press: inset 0 2px 4px rgb(16 21 31 / 0.1);
 
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ---------------------------------------------------------------------------
-   Base styles.
-   These MUST live inside @layer base. Unlayered CSS beats every layered rule
-   in the cascade, so an unlayered `button { color: inherit }` or
-   `* { border-color: ... }` would silently defeat Tailwind utilities such as
-   `text-transparent` and `border-primary` on those elements.
-   --------------------------------------------------------------------------- */
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
-
-  *,
-  ::before,
-  ::after {
-    border-color: var(--color-line);
-  }
-
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
-
+  :root { color-scheme: light; }
+  *, ::before, ::after { border-color: var(--color-line); }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    background-color: var(--color-canvas);
+    background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "cv11", "ss01";
     font-variant-numeric: tabular-nums;
     min-height: 100dvh;
   }
-
-  /* Ambient gradient wash, fixed so it does not scroll with content. */
+  /* soft colour blobs, the cheapest honest 3D we can ship */
   body::before {
     content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(900px 520px at 12% -8%, #35c6b114, transparent 70%),
-      radial-gradient(760px 480px at 92% 4%, #f2ae520f, transparent 70%);
+      radial-gradient(620px 420px at 8% -5%, #d9f3ee 0%, transparent 65%),
+      radial-gradient(520px 380px at 96% 2%, #fdeed6 0%, transparent 65%);
   }
-
-  ::selection {
-    background: var(--color-primary);
-    color: #06201c;
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  input,
-  textarea,
-  select,
-  button {
-    font: inherit;
-    color: inherit;
-  }
-
-  /* Scrollbars that do not break the dark surface. */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
-  }
-  *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  *::-webkit-scrollbar-thumb {
-    background: var(--color-line-strong);
-    border-radius: 999px;
-    border: 2px solid var(--color-canvas);
-  }
+  input, select, button, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  *, *::before, *::after {
+    animation-duration: .01ms !important; transition-duration: .01ms !important;
   }
 }
 
-/* ===========================================================================
-   Component classes
-   =========================================================================== */
 @layer components {
-  .cs-card {
-    background-color: var(--color-surface);
+  .card {
+    background: var(--color-surface);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-soft);
   }
 
-  .cs-card-quiet {
-    background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);
+  /* an extruded tile — highlight on top, shadow below */
+  .tile {
+    background: linear-gradient(180deg, #ffffff 0%, #f9fafc 100%);
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 0 #fff inset, var(--shadow-soft);
+    transition: transform 160ms var(--ease-pop), box-shadow 160ms var(--ease-pop);
   }
+  .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+  .tile:active { transform: translateY(0); box-shadow: var(--shadow-press); }
 
-  .cs-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 0.4rem;
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    border-radius: .75rem; padding: .625rem 1.125rem;
+    font-size: .9375rem; font-weight: 600; border: 1px solid transparent;
+    cursor: pointer; white-space: nowrap;
+    transition: transform 140ms var(--ease-pop), background-color 140ms, box-shadow 140ms;
   }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
 
-  .cs-input {
-    width: 100%;
-    background-color: var(--color-canvas-deep);
-    border: 1px solid var(--color-line);
-    border-radius: 0.625rem;
-    padding: 0.625rem 0.75rem;
-    font-size: 0.9375rem;
-    transition: border-color 160ms var(--ease-out-soft), box-shadow 160ms var(--ease-out-soft);
+  .btn-primary {
+    background: linear-gradient(180deg, #14b49c 0%, var(--color-primary) 100%);
+    color: #fff;
+    box-shadow: 0 1px 0 rgb(255 255 255 / .25) inset, 0 6px 14px -6px rgb(14 159 138 / .6);
   }
-  .cs-input::placeholder {
-    color: var(--color-muted-dim);
-  }
-  .cs-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-soft);
-  }
-  .cs-input:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-  .cs-input[aria-invalid="true"] {
-    border-color: var(--color-danger);
-  }
+  .btn-primary:hover:not(:disabled) { background: linear-gradient(180deg, #17c3a9 0%, #10a893 100%); }
 
-  .cs-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border-radius: 0.625rem;
-    padding: 0.625rem 1.125rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition:
-      transform 140ms var(--ease-out-soft),
-      background-color 160ms var(--ease-out-soft),
-      border-color 160ms var(--ease-out-soft),
-      opacity 160ms var(--ease-out-soft);
-    white-space: nowrap;
-  }
-  .cs-btn:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-  .cs-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  .btn-ghost { background: var(--color-surface); border-color: var(--color-line-strong); color: var(--color-ink); }
+  .btn-ghost:hover:not(:disabled) { background: var(--color-sunken); }
 
-  .cs-btn-primary {
-    background-color: var(--color-primary);
-    color: #06201c;
-  }
-  .cs-btn-primary:hover:not(:disabled) {
-    background-color: #46d4bf;
-  }
+  .btn-danger { background: var(--color-danger-soft); color: var(--color-danger); border-color: #f3c9c6; }
 
-  .cs-btn-accent {
-    background-color: var(--color-accent);
-    color: #2a1c05;
+  .field {
+    width: 100%; background: var(--color-surface);
+    border: 1px solid var(--color-line-strong); border-radius: .75rem;
+    padding: .625rem .75rem; font-size: .9375rem;
+    box-shadow: var(--shadow-press);
+    transition: border-color 140ms, box-shadow 140ms;
   }
-  .cs-btn-accent:hover:not(:disabled) {
-    background-color: #f7bd6d;
-  }
+  .field:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
 
-  .cs-btn-ghost {
-    background-color: transparent;
-    border-color: var(--color-line-strong);
-    color: var(--color-ink);
-  }
-  .cs-btn-ghost:hover:not(:disabled) {
-    background-color: var(--color-surface-hover);
-  }
-
-  .cs-btn-danger {
-    background-color: var(--color-danger-soft);
-    border-color: color-mix(in oklab, var(--color-danger) 45%, transparent);
-    color: var(--color-danger);
-  }
-  .cs-btn-danger:hover:not(:disabled) {
-    background-color: color-mix(in oklab, var(--color-danger) 22%, transparent);
-  }
-
-  .cs-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    border-radius: 999px;
-    padding: 0.1875rem 0.625rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: 1px solid var(--color-line);
-    background-color: var(--color-surface-raised);
-    color: var(--color-muted);
-  }
-
-  .cs-link {
-    color: var(--color-primary);
-    text-decoration: none;
-    transition: color 140ms var(--ease-out-soft);
-  }
-  .cs-link:hover {
-    color: #5ddfca;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .cs-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-line), transparent);
-    border: 0;
+  .chip {
+    display: inline-flex; align-items: center; gap: .375rem;
+    border-radius: 999px; padding: .25rem .625rem;
+    font-size: .75rem; font-weight: 600;
+    border: 1px solid var(--color-line); background: var(--color-surface); color: var(--color-muted);
   }
 }
 
 @layer utilities {
-  .cs-rise {
-    animation: cs-rise 460ms var(--ease-out-soft) both;
-  }
-  .cs-fade {
-    animation: cs-fade 320ms var(--ease-out-soft) both;
-  }
-  .cs-numeric {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
-  }
+  .rise { animation: rise 420ms var(--ease-pop) both; }
+  .num { font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 }
 
-@keyframes cs-rise {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes cs-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Recharts surfaces must inherit the dark theme. */
-.recharts-surface {
-  overflow: visible;
-}
-.recharts-cartesian-axis-tick text {
-  fill: var(--color-muted);
-  font-size: 11px;
-}
-.recharts-cartesian-grid line {
-  stroke: var(--color-line);
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
