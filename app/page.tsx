@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Wordmark } from "@/components/ui/logo";
 
 const STEPS = [
-  { who: "Sponsor", does: "Marks free days", emoji: "📅", color: "from-[#14b49c] to-[#0b8273]" },
-  { who: "Officer", does: "Opens a vote", emoji: "🗳️", color: "from-[#4f8ef7] to-[#3367d6]" },
-  { who: "Student", does: "Picks what works", emoji: "✋", color: "from-[#f0a63d] to-[#d8821a]" },
+  { who: "Officer", does: "Proposes times", emoji: "🗳️", color: "from-[#14b49c] to-[#0b8273]" },
+  { who: "Students", does: "Vote on them", emoji: "✋", color: "from-[#4f8ef7] to-[#3367d6]" },
+  { who: "Done", does: "Meeting is booked", emoji: "✅", color: "from-[#f0a63d] to-[#d8821a]" },
 ];
 
 export default function Landing() {

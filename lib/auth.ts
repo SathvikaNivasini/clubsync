@@ -17,13 +17,13 @@ export async function getViewer(): Promise<Viewer | null> {
 
   const meta = user.user_metadata as { app_role?: string; handle?: string } | undefined;
   const role = meta?.app_role;
-  if (role !== "sponsor" && role !== "officer" && role !== "student") return null;
+  if (role !== "officer" && role !== "student") return null;
 
   return { userId: user.id, role, name: meta?.handle ?? "", supabase };
 }
 
 export function homeFor(role: Role): string {
-  return role === "sponsor" ? "/sponsor" : role === "officer" ? "/officer" : "/student";
+  return role === "officer" ? "/officer" : "/student";
 }
 
 export async function requireRole(role: Role): Promise<Viewer> {

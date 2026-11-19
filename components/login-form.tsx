@@ -8,7 +8,6 @@ import { loginEmail, type Role } from "@/lib/slots";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 const ROLES: { key: Role; label: string; emoji: string }[] = [
-  { key: "sponsor", label: "Sponsor", emoji: "📅" },
   { key: "officer", label: "Officer", emoji: "🗳️" },
   { key: "student", label: "Student", emoji: "✋" },
 ];
@@ -36,7 +35,7 @@ export function LoginForm() {
       setBusy(false);
       return;
     }
-    router.replace(role === "sponsor" ? "/sponsor" : role === "officer" ? "/officer" : "/student");
+    router.replace(role === "officer" ? "/officer" : "/student");
     router.refresh();
   }
 
@@ -44,7 +43,7 @@ export function LoginForm() {
     <div className="card p-6">
       <h1 className="text-xl font-bold tracking-tight">Sign in</h1>
 
-      <div className="mt-4 grid grid-cols-3 gap-1.5 rounded-xl bg-sunken p-1.5">
+      <div className="mt-4 grid grid-cols-2 gap-1.5 rounded-xl bg-sunken p-1.5">
         {ROLES.map((r) => (
           <button
             key={r.key}
@@ -65,7 +64,7 @@ export function LoginForm() {
         <input
           value={handle}
           onChange={(e) => setHandle(e.target.value)}
-          placeholder={role === "officer" ? "CCTIA" : role === "sponsor" ? "ms.rivera" : "quietfox"}
+          placeholder={role === "officer" ? "CCTIA" : "quietfox"}
           autoCapitalize="none"
           spellCheck={false}
           required

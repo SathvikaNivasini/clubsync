@@ -16,16 +16,14 @@ export function slotTime(key: string): string {
   return SLOTS.find((s) => s.key === key)?.time ?? "";
 }
 
-export type Role = "sponsor" | "officer" | "student";
+export type Role = "officer" | "student";
 
 /** No email is ever collected; Supabase Auth needs an identifier, so we derive
  *  one. `.invalid` is reserved by RFC 2606 and can never receive mail. */
 const DOMAIN = "clubsync.invalid";
 export function loginEmail(handle: string, role: Role): string {
   const h = handle.trim().toLowerCase();
-  if (role === "sponsor") return `${h}@sponsors.${DOMAIN}`;
-  if (role === "officer") return `${h}@officers.${DOMAIN}`;
-  return `${h}@members.${DOMAIN}`;
+  return role === "officer" ? `${h}@officers.${DOMAIN}` : `${h}@members.${DOMAIN}`;
 }
 
 export const MIN_PASSWORD = 8;

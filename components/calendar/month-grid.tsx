@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 /**
  * A month grid that renders whatever each screen needs inside a day cell.
- * Shared by the sponsor's availability picker and everyone's meeting calendar.
+ * Shared by the officer's time picker and everyone's meeting calendar.
  */
 export function MonthGrid({
   month,

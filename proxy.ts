@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const GUARDED = ["/sponsor", "/officer", "/student"];
+const GUARDED = ["/officer", "/student"];
 
 export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
 
   if (user) {
     const role = (user.user_metadata as { app_role?: string } | undefined)?.app_role;
-    const home = role === "sponsor" ? "/sponsor" : role === "officer" ? "/officer" : "/student";
+    const home = role === "officer" ? "/officer" : "/student";
     if (guarded && role && !pathname.startsWith(home)) {
       const u = request.nextUrl.clone();
       u.pathname = home;
